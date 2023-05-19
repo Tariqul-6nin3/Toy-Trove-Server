@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 const port = process.env.PORT || 5000;
 
@@ -10,7 +10,6 @@ app.use(cors());
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.TOY_USER}:${process.env.TOY_PASS}@cluster0.jsico6b.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -27,10 +26,33 @@ async function run() {
     await client.connect();
     // Send a ping to confirm a successful connection
     const toyCollection = client.db("toyTroveDB").collection("toy");
+
     app.post("/", async (req, res) => {
       const newToy = req.body;
       console.log(newToy);
       const result = await toyCollection.insertOne(newToy);
+      res.send(result);
+    });
+
+    app.get("/alltoys", async (req, res) => {
+      const cursor = toyCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/mytoys", async (req, res) => {
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email };
+      }
+      const result = await toyCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.delete("/alltoys/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await toyCollection.deleteOne(query);
       res.send(result);
     });
     await client.db("admin").command({ ping: 1 });
