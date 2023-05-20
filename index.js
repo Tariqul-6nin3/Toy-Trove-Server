@@ -49,6 +49,16 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/marvel", async (req, res) => {
+      let query = {};
+      if (req.query?.subcategory) {
+        query = { subcategory: req.query.subcategory };
+      }
+      const result = await toyCollection.find(query).toArray();
+      console.log(result);
+      res.send(result);
+    });
+
     app.delete("/alltoys/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
