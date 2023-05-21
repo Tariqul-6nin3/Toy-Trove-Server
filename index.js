@@ -35,10 +35,17 @@ async function run() {
     });
 
     app.get("/alltoys", async (req, res) => {
-      const cursor = toyCollection.find();
+      const cursor = toyCollection.find().limit(20);
       const result = await cursor.toArray();
       res.send(result);
     });
+
+    // app.get("/alltoys", async (req, res) => {
+    //    const query = {name:}
+    //    const cursor = toyCollection.find().limit(20);
+    //    const result = await cursor.toArray();
+    //    res.send(result);
+    //  });
 
     app.get("/mytoys", async (req, res) => {
       let query = {};
